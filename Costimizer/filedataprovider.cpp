@@ -20,7 +20,7 @@ QList<QString> FileDataProvider::getItems() const
 {
     QList<QString> items;
 
-    std::fstream inFile( R"(C:\Users\exi\Desktop\Costimizer\posten.txt)" );
+    std::fstream inFile( YOUT_FILE_PATH_HERE );
 
     if( !inFile )
     {
