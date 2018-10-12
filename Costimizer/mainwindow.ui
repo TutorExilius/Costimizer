@@ -61,12 +61,12 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,0,0,0,0">
+       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,0,0">
         <property name="bottomMargin">
          <number>0</number>
         </property>
         <item>
-         <widget class="QListWidget" name="listWidget_shoppingList">
+         <widget class="QListView" name="listView_shoppingList">
           <property name="selectionMode">
            <enum>QAbstractItemView::MultiSelection</enum>
           </property>
@@ -382,8 +382,8 @@ QPushButton#pushButton_generateLists:pressed {
  <resources/>
  <connections>
   <connection>
-   <sender>menuBar</sender>
-   <signal>triggered(QAction*)</signal>
+   <sender>action_Beenden</sender>
+   <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>close()</slot>
    <hints>

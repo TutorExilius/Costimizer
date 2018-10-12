@@ -2,10 +2,8 @@
 
 DataProvider::DataProvider()
 {
-
 }
 
 DataProvider::~DataProvider()
 {
-
 }

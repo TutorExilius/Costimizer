@@ -6,21 +6,42 @@
 #include <string>
 #include <sstream>
 
+#include "shopitem.h"
+
 FileDataProvider::FileDataProvider()
 {
-
+    this->readShopItems( R"(C:\Users\exi\Desktop\Costimizer\shopitems.txt)" );
 }
 
 FileDataProvider::~FileDataProvider()
 {
-
 }
 
-QList<QString> FileDataProvider::getItems() const
+QList<ShopItem> FileDataProvider::getShopItems() const
 {
-    QList<QString> items;
+    return this->shopItems;
+}
 
-    std::fstream inFile( YOUT_FILE_PATH_HERE );
+QList<Discounter> FileDataProvider::getDiscounter() const
+{
+    return this->discounter;
+}
+
+QList<DiscounterShopItem> FileDataProvider::getDiscounterShopItems( const ulong &discounterID ) const
+{
+    if( this->discounterShopItems.contains(discounterID) )
+    {
+        return this->discounterShopItems[discounterID];
+    }
+    else
+    {
+        return QList<DiscounterShopItem>{};
+    }
+}
+
+void FileDataProvider::readShopItems( const QString &fullFileName )
+{
+    std::fstream inFile( fullFileName.toStdString() );
 
     if( !inFile )
     {
@@ -32,8 +53,7 @@ QList<QString> FileDataProvider::getItems() const
         msg->setModal( false );
         msg->exec();
 
-
-        return items;
+        return;
     }
 
     std::string line;
@@ -41,15 +61,67 @@ QList<QString> FileDataProvider::getItems() const
     {
         std::stringstream ss(line);
 
-        std::string id;
-        std::string item;
+        ulong id = 0;
+        std::string name;
 
         ss >> id;
-        std::getline(ss, item);
-        item.erase( 0, 1 );
+        std::getline(ss, name);
+        name.erase( 0, 1 );
 
-        items.append( QString::fromStdString(item) );
+        ShopItem shopItem{id, QString::fromStdString(name) };
+
+        this->shopItems.push_back( shopItem );
+    }
+}
+
+/*
+
+void FileDataProvider::loadShopItems( const QString &fileNamePath ) const
+{
+    std::fstream inFile( fileNamePath.toStdString() );
+
+    if( !inFile )
+    {
+        qDebug() << "File could not be opened";
+
+        QMessageBox *msg = new QMessageBox;
+        msg->setWindowTitle( "Error" );
+        msg->setText( "File could not be opened" );
+        msg->setModal( false );
+        msg->exec();
+
+        return;
+    }
+
+    std::string line;
+    while( std::getline( inFile, line ) )
+    {
+        std::stringstream ss(line);
+
+        ulong id = 0;
+        std::string name;
+
+        ss >> id;
+        std::getline(ss, name);
+        name.erase( 0, 1 );
+
+        ShopItem shopItem{id, QString::fromStdString(name) };
+
+        this->shopItems.
+
+Notiz an mich selbst:    - QVariant überall entfernen
+                         - DataProvider hat alle Daten aus den TextDateien
+                         - DataProvider stellt diese nach Anfrage zur Verfügung (getter)
+
     }
 
     return items;
 }
+
+QList<QVariant> FileDataProvider::loadDiscounter( const QString &fileNamePath ) const
+{
+    QList<QVariant> items;
+
+    return items;
+}
+*/

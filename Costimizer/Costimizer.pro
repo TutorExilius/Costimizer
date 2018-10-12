@@ -26,12 +26,20 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     dataprovider.cpp \
-    filedataprovider.cpp
+    filedataprovider.cpp \
+    mylist.cpp \
+    shopitem.cpp \
+    discounter.cpp \
+    discountershopitem.cpp
 
 HEADERS += \
         mainwindow.h \
     dataprovider.h \
-    filedataprovider.h
+    filedataprovider.h \
+    mylist.h \
+    shopitem.h \
+    discounter.h \
+    discountershopitem.h
 
 FORMS += \
         mainwindow.ui
