@@ -12,8 +12,26 @@ Discounter::Discounter( const ulong &id, const QString &name, const QString &loc
 , name{ name }
 , location{ location }
 {
-
 }
+
+const ulong& Discounter::getId() const
+{
+    return this->id;
+}
+
+const QString& Discounter::getName() const
+{
+    return this->name;
+}
+
+
+const QString& Discounter::getLocation() const
+{
+    return this->location;
+}
+
+
+
 /*
 bool Discounter::addShopItem( const ShopItem &shopItem )
 {

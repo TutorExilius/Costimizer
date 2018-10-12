@@ -11,10 +11,9 @@ public:
 
     bool addShopItem( const ShopItem &shopItem );
 
-    const ulong& getId() const
-    {
-        return this->id;
-    }
+    const ulong& getId() const;
+    const QString& getName() const;
+    const QString& getLocation() const;
 
 private:
     ulong id;

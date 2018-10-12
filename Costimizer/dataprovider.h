@@ -16,7 +16,7 @@ public:
     virtual ~DataProvider();
 
     virtual QList<ShopItem> getShopItems() const = 0;
-    virtual QList<Discounter> getDiscounter() const = 0;
+    virtual QList<Discounter> getDiscounters() const = 0;
     virtual QList<DiscounterShopItem> getDiscounterShopItems( const ulong &discounterID ) const = 0;
 
 private:

@@ -89,27 +89,7 @@ void MainWindow::loadItemsIntoList()
     for( const auto &item : shopItems )
     {
         this->ui->listWidget_items->addItem( item.getName() );
-
-     //   this->myShopItems.push_back( new ShopItem{shopItem} );
     }
-
-    /*
-
-    auto discounter = this->dataProvider->loadDiscounter( R"(C:\Users\exi\Desktop\Costimizer\discounterpreise\1.txt)" );
-    for( const auto &item : discounter )
-    {
-        Discounter discounter = item.value<Discounter>();
-
-        auto discounterShopItemIds = this->dataProvider->getDiscounterShopItemIds( discounter.getId() );
-        for( const auto &itemId : discounterShopItemIds )
-        {
-            ShopItem shopItem( itemId, this->getShopItemName(itemId) );
-
-        }
-
-        this->myDiscounter.push_back( new Discounter{discounter} );
-    }
-    */
 }
 
 QPair<QString,int> MainWindow::splitString( QString item )
