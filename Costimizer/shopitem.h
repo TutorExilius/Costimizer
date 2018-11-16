@@ -6,7 +6,10 @@
 class ShopItem
 {
 public:
-    explicit ShopItem( const ulong &id, const QString &name );
+    ShopItem();
+    explicit ShopItem( const ulong &id );
+
+    ShopItem( const ulong &id, const QString &name );
 
     const ulong& getId() const;
     const QString& getName() const;

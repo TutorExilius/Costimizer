@@ -18,13 +18,21 @@
 
 #include "filedataprovider.h"
 #include "shopitem.h"
+#include "configdialog.h"
 
 MainWindow::MainWindow( QWidget *parent )
 : QMainWindow{ parent }
 , ui{ new Ui::MainWindow }
-, dataProvider{ new FileDataProvider }
+, dataProvider{ nullptr }
+, config{ R"(C:\Users\exi\Desktop\config.txt)" }
 {
-    this->ui->setupUi(this);
+    this->ui->setupUi( this );
+
+    this->dataProvider = new FileDataProvider{
+                this->config.getValueOf( "ShopList_TXT" ),
+                this->config.getValueOf( "DiscounterList_TXT" )
+            };
+
     this->myShoppingList = new MyList{ this->ui->listView_shoppingList };
 
     this->ui->listView_shoppingList->setModel( this->myShoppingList );
@@ -49,6 +57,10 @@ MainWindow::MainWindow( QWidget *parent )
                       this, &MainWindow::onReduceOneClicked,
                       Qt::UniqueConnection );
 
+    QObject::connect( this->ui->action_Settings, &QAction::triggered,
+                      this, &MainWindow::onSettingsTriggered,
+                      Qt::UniqueConnection );
+
     this->loadItemsIntoList();
 }
 
@@ -67,6 +79,12 @@ MainWindow::~MainWindow()
     delete this->dataProvider;
 
     delete ui;
+}
+
+void MainWindow::saveConfig( const Config config )
+{
+    this->config = config;
+    this->config.writeConfigFile();
 }
 
 QString MainWindow::getShopItemName( const ulong &id ) const
@@ -90,6 +108,21 @@ void MainWindow::loadItemsIntoList()
     {
         this->ui->listWidget_items->addItem( item.getName() );
     }
+}
+
+ShopItem MainWindow::getShopItem( const QString &itemName )
+{
+    auto shopItems = this->dataProvider->getShopItems();
+
+    for( const auto &shopItem : shopItems )
+    {
+        if( shopItem.getName() == itemName )
+        {
+            return shopItem;
+        }
+    }
+
+    return ShopItem();
 }
 
 QPair<QString,int> MainWindow::splitString( QString item )
@@ -231,4 +264,27 @@ void MainWindow::onReduceOneClicked()
 void MainWindow::onAbout()
 {
     QMessageBox::aboutQt( this );
+}
+
+void MainWindow::onSettingsTriggered()
+{
+    qDebug() << "Settings...";
+
+    ConfigDialog *settings = new ConfigDialog{ this, this->config };
+    settings->exec();
+}
+
+void MainWindow::on_pushButton_generateLists_clicked()
+{
+    for( int i=0; i<this->myShoppingList->rowCount(); ++i )
+    {
+        QModelIndex index = this->myShoppingList->index(i,0);
+        auto item = this->myShoppingList->data(index);
+
+        QString itemName = item.value<QString>();
+        ShopItem shopItem = this->getShopItem( itemName );
+
+        // TODO schaue, ob das ShopItem in den Dsicountern zu finden ist und BLA
+
+    }
 }

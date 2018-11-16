@@ -53,7 +53,6 @@ bool MyList::setData(const QModelIndex &index, const QVariant &value, int role)
     return false;
 }
 
-
 bool MyList::insertRows(int row, int count, const QModelIndex &parent)
 {
     beginInsertRows(parent, row, row + count - 1);

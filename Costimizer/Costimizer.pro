@@ -30,7 +30,9 @@ SOURCES += \
     mylist.cpp \
     shopitem.cpp \
     discounter.cpp \
-    discountershopitem.cpp
+    discountershopitem.cpp \
+    config.cpp \
+    configdialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -39,10 +41,13 @@ HEADERS += \
     mylist.h \
     shopitem.h \
     discounter.h \
-    discountershopitem.h
+    discountershopitem.h \
+    config.h \
+    configdialog.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    configdialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

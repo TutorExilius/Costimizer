@@ -2,16 +2,24 @@
 
 #include <fstream>
 #include <QDebug>
+#include <QDir>
+#include <QList>
 #include <QMessageBox>
 #include <string>
 #include <sstream>
 
 #include "shopitem.h"
+#include "discountershopitem.h"
 
-FileDataProvider::FileDataProvider()
+// static ---
+QString FileDataProvider::discounterShopItemsSubdir = R"(C:\Users\exi\Desktop\Costimizer\discounterpreise)";
+// ---
+
+FileDataProvider::FileDataProvider( const QString &shopItemDatafile, const QString &discounterDatafile )
 {
-    this->readShopItems( R"(C:\Users\exi\Desktop\Costimizer\shopitems.txt)" );
-    this->readDiscounters( R"(C:\Users\exi\Desktop\Costimizer\discounter.txt)" );
+    this->readShopItems( shopItemDatafile );
+    this->readDiscounters( discounterDatafile );
+    this->readDisounterShopItems( FileDataProvider::discounterShopItemsSubdir );
 }
 
 FileDataProvider::~FileDataProvider()
@@ -111,6 +119,59 @@ void FileDataProvider::readDiscounters( const QString &fullFileName )
         this->discounters.push_back( discounter );
     }
 }
+
+void FileDataProvider::readDisounterShopItems( const QString &discounterShopItemsSubdir )
+{
+    QDir export_folder( discounterShopItemsSubdir );
+
+    export_folder.setNameFilters( QStringList("*.txt") );
+
+    QStringList fileList = export_folder.entryList();
+
+    foreach( QString fileName, fileList)
+    {
+        qDebug() << fileName;
+        QString cleanFileName = FileDataProvider::withoutExtension( fileName );
+
+        QFile file( discounterShopItemsSubdir + "\\" + fileName );
+        if( !file.open( QFile::ReadOnly|QFile::Text ) )
+        {
+            qDebug() << " Could not open the file '"
+                     << fileName << "' for reading";
+            continue;
+        }
+
+        QList<DiscounterShopItem> list;
+        unsigned long disounterId = cleanFileName.toULong();
+
+        while( !file.atEnd() )
+        {
+            ulong shopItemId;
+            double normalPrice;
+            double offerPrice;
+
+            QString line = file.readLine();
+
+            if( !line.isEmpty() )
+            {
+                QTextStream in( &line );
+                in >> shopItemId >> normalPrice >> offerPrice;
+
+                DiscounterShopItem item{ disounterId, shopItemId, normalPrice, offerPrice };
+
+                list.append( item );
+            }
+        }
+
+        this->discounterShopItems.insert( disounterId, list );
+    }
+}
+
+QString FileDataProvider::withoutExtension( const QString &fileName)
+{
+    return fileName.left( fileName.lastIndexOf(".") );
+}
+
 /*
 
 void FileDataProvider::loadShopItems( const QString &fileNamePath ) const

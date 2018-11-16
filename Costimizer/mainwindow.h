@@ -8,6 +8,10 @@
 #include "dataprovider.h"
 #include "mylist.h"
 #include "discounter.h"
+#include "config.h"
+
+// Forward-Declarations
+class DiscounterShopItem;
 
 namespace Ui {
 class MainWindow;
@@ -18,8 +22,10 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow( QWidget *parent = nullptr );
     virtual ~MainWindow();
+
+    void saveConfig( const Config config );
 
     QString getShopItemName( const ulong &id ) const;
 
@@ -28,7 +34,12 @@ public slots:
     void onShiftClicked();
     void onDeleteSelectionsClicked();
     void onReduceOneClicked();
+
+private slots:
     void onAbout();
+    void onSettingsTriggered();
+
+    void on_pushButton_generateLists_clicked();
 
 private:
     //void loadItemsIntoList();
@@ -38,6 +49,7 @@ private:
     QString buildItemCountedEntryName( const QPair<QString,int> &itemKey );
     void addItem( const QString &item );
     void loadItemsIntoList();
+    ShopItem getShopItem( const QString &itemName );
 
     Ui::MainWindow *ui;
     DataProvider *dataProvider;
@@ -46,6 +58,7 @@ private:
 
     QList<ShopItem*> myShopItems;
     QList<Discounter*> myDiscounter;
+    Config config;
 };
 
 #endif // MAINWINDOW_H
