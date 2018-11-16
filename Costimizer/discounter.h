@@ -15,6 +15,8 @@ public:
     const QString& getName() const;
     const QString& getLocation() const;
 
+    QString toString() const;
+
 private:
     ulong id;
     QString name;

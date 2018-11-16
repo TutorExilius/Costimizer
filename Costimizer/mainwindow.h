@@ -5,6 +5,8 @@
 #include <QListWidget>
 #include <QString>
 
+#include <map>
+
 #include "dataprovider.h"
 #include "mylist.h"
 #include "discounter.h"
@@ -12,6 +14,9 @@
 
 // Forward-Declarations
 class DiscounterShopItem;
+
+// Definitions
+using ShopListMap = std::map<const Discounter*,QList<DiscounterShopItem>>;
 
 namespace Ui {
 class MainWindow;
@@ -50,6 +55,7 @@ private:
     void addItem( const QString &item );
     void loadItemsIntoList();
     ShopItem getShopItem( const QString &itemName );
+    ShopListMap reduceToCheapestDiscounterShoppingLists( const ShopListMap &geratedDiscounterShoppingLists ) const;
 
     Ui::MainWindow *ui;
     DataProvider *dataProvider;

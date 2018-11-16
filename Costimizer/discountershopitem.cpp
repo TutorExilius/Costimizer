@@ -1,5 +1,7 @@
 #include "discountershopitem.h"
 
+#include <QString>
+
 DiscounterShopItem::DiscounterShopItem( const ulong &discounterId, const ulong &shopItemId,
        const double &normalPrice, const double &offerPrice )
 : discounterId{ discounterId }
@@ -37,5 +39,17 @@ void DiscounterShopItem::setNormalPrice( const double &normalPrice )
 void DiscounterShopItem::setOfferPrice( const double &offerPrice )
 {
     this->offerPrice = offerPrice;
+}
+
+QString DiscounterShopItem::toString() const
+{
+    QString outStr;
+
+    outStr += "ShopID:\t" + QString::number( this->getShopItemId() ) + "\n";
+    outStr += "Normal:\t" + QString::number( this->getNormalPrice() ) + "\n";
+    outStr += "Angebot:\t" + QString::number( this->getOfferPrice() ) + "\n";
+    outStr += "DiscounterID:\t" + QString::number(   this->getDiscounterId() ) + "\n";
+
+    return outStr;
 }
 

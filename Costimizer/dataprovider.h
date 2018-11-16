@@ -16,7 +16,10 @@ public:
     virtual ~DataProvider();
 
     virtual QList<ShopItem> getShopItems() const = 0;
+    virtual Discounter* getDiscounter( const ulong &discounterId ) = 0;
+    virtual const Discounter* getDiscounter( const ulong &discounterId ) const = 0;
     virtual QList<Discounter> getDiscounters() const = 0;
+    virtual QList<const Discounter*> getDiscountersRefs( const ulong &shopItemId ) const = 0;
     virtual QList<DiscounterShopItem> getDiscounterShopItems( const ulong &discounterID ) const = 0;
 
 private:

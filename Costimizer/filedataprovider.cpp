@@ -31,9 +31,60 @@ QList<ShopItem> FileDataProvider::getShopItems() const
     return this->shopItems;
 }
 
+Discounter* FileDataProvider::getDiscounter( const ulong &discounterId )
+{
+    for( Discounter &discounter : this->discounters )
+    {
+        if( discounter.getId() == discounterId )
+        {
+            return &discounter;
+        }
+    }
+
+    return nullptr;
+}
+
+const Discounter* FileDataProvider::getDiscounter( const ulong &discounterId ) const
+{
+    for( const Discounter &discounter : this->discounters )
+    {
+        if( discounter.getId() == discounterId )
+        {
+            return &discounter;
+        }
+    }
+
+    return nullptr;
+}
+
 QList<Discounter> FileDataProvider::getDiscounters() const
 {
     return this->discounters;
+}
+
+QList<const Discounter*> FileDataProvider::getDiscountersRefs( const ulong &shopItemId ) const
+{
+    QList<const Discounter*> discounterList;
+
+    for( ulong discounterId : this->discounterShopItems.keys() )
+    {
+        QList<DiscounterShopItem> discounterShopItems = this->discounterShopItems.value( discounterId );
+
+        for( const auto &discounterShopItem : discounterShopItems )
+        {
+            if( discounterShopItem.getShopItemId() == shopItemId )
+            {
+                const Discounter *discounter = this->getDiscounter( discounterId );
+
+                if( discounter != nullptr )
+                {
+                    discounterList.push_back( discounter );
+                }
+            }
+        }
+    }
+
+    return discounterList;
 }
 
 QList<DiscounterShopItem> FileDataProvider::getDiscounterShopItems( const ulong &discounterID ) const

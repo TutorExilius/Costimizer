@@ -10,6 +10,7 @@
 #include <QString>
 #include <QPair>
 
+#include <map>
 #include <string>
 #include <sstream>
 
@@ -276,6 +277,8 @@ void MainWindow::onSettingsTriggered()
 
 void MainWindow::on_pushButton_generateLists_clicked()
 {
+    std::map<const Discounter*,QList<DiscounterShopItem>> generatedDiscounterShoppingLists;
+
     for( int i=0; i<this->myShoppingList->rowCount(); ++i )
     {
         QModelIndex index = this->myShoppingList->index(i,0);
@@ -284,7 +287,44 @@ void MainWindow::on_pushButton_generateLists_clicked()
         QString itemName = item.value<QString>();
         ShopItem shopItem = this->getShopItem( itemName );
 
-        // TODO schaue, ob das ShopItem in den Dsicountern zu finden ist und BLA
+        ulong shopItemId = shopItem.getId();
+        QList<const Discounter*> discounters = this->dataProvider->getDiscountersRefs( shopItemId );
 
+        for( const Discounter *discounter : discounters )
+        {
+            QList<DiscounterShopItem> discounterItems = this->dataProvider->getDiscounterShopItems( discounter->getId() );
+
+            for( const DiscounterShopItem &discounterShopItem : discounterItems )
+            {
+                if( discounterShopItem.getShopItemId() == shopItemId )
+                {
+                    generatedDiscounterShoppingLists[discounter].append(discounterShopItem);
+                }
+            }
+        }
     }
+
+    if( generatedDiscounterShoppingLists.size() )
+    {
+        for( const auto &key : generatedDiscounterShoppingLists )
+        {
+            qDebug() << "Key: " << key.first->toString();
+
+            for( const auto &val : key.second )
+            {
+                qDebug() << val.toString();
+            }
+        }
+    }
+    else
+    {
+        qDebug() << "NOPE, generation nix gutt";
+    }
+}
+
+ShopListMap MainWindow::reduceToCheapestDiscounterShoppingLists( const ShopListMap &geratedDiscounterShoppingLists ) const
+{
+
+    // TODO filtere die günstigsten ShopItems und die Informationen, in welchem Discounter diese zu finden sind
+
 }

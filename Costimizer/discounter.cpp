@@ -30,6 +30,16 @@ const QString& Discounter::getLocation() const
     return this->location;
 }
 
+QString Discounter::toString() const
+{
+    QString outStr;
+
+    outStr += "[ID " + QString::number(this->getId()) + "] ";
+    outStr += this->getName() + "\n";
+    outStr += "Location:\t" + this->getLocation() + "\n";
+
+    return outStr;
+}
 
 
 /*

@@ -18,7 +18,10 @@ public:
     virtual ~FileDataProvider() override;
 
     virtual QList<ShopItem> getShopItems() const override;
+    virtual Discounter* getDiscounter( const ulong &discounterId ) override;
+    virtual const Discounter* getDiscounter( const ulong &discounterId ) const override;
     virtual QList<Discounter> getDiscounters() const override;
+    virtual QList<const Discounter*> getDiscountersRefs( const ulong &shopItemId ) const override;
     virtual QList<DiscounterShopItem> getDiscounterShopItems( const ulong &discounterID ) const override;
 
 private:
