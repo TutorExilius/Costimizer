@@ -7,9 +7,9 @@
 
 #include <map>
 
-#include "dataprovider.h"
+#include "db_dataprovider.h"
+
 #include "mylist.h"
-#include "discounter.h"
 #include "config.h"
 
 // Forward-Declarations
@@ -43,12 +43,9 @@ public slots:
 private slots:
     void onAbout();
     void onSettingsTriggered();
-
     void on_pushButton_generateLists_clicked();
 
 private:
-    //void loadItemsIntoList();
-
     void combineEntries();
     QPair<QString,int> splitString( QString item );
     QString buildItemCountedEntryName( const QPair<QString,int> &itemKey );
@@ -58,12 +55,9 @@ private:
     ShopListMap reduceToCheapestDiscounterShoppingLists( const ShopListMap &geratedDiscounterShoppingLists ) const;
 
     Ui::MainWindow *ui;
-    DataProvider *dataProvider;
 
-    MyList *myShoppingList;
-
-    QList<ShopItem*> myShopItems;
-    QList<Discounter*> myDiscounter;
+    DB_DataProvider *dbDataProvider;
+    MyList *myShoppingList;    
     Config config;
 };
 

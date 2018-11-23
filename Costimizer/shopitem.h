@@ -7,15 +7,14 @@ class ShopItem
 {
 public:
     ShopItem();
-    explicit ShopItem( const ulong &id );
+    explicit ShopItem( const uint &id );
+    explicit ShopItem( const uint &id, const QString &name );
 
-    ShopItem( const ulong &id, const QString &name );
-
-    const ulong& getId() const;
+    const uint& getId() const;
     const QString& getName() const;
 
 private:
-    ulong id;
+    uint id;
     QString name;
 };
 

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets
+QT       += core gui widgets sql
 
 TARGET = Costimizer
 TEMPLATE = app
@@ -25,25 +25,23 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    dataprovider.cpp \
-    filedataprovider.cpp \
     mylist.cpp \
     shopitem.cpp \
     discounter.cpp \
     discountershopitem.cpp \
     config.cpp \
-    configdialog.cpp
+    configdialog.cpp \
+    db_dataprovider.cpp
 
 HEADERS += \
         mainwindow.h \
-    dataprovider.h \
-    filedataprovider.h \
     mylist.h \
     shopitem.h \
     discounter.h \
     discountershopitem.h \
     config.h \
-    configdialog.h
+    configdialog.h \
+    db_dataprovider.h
 
 FORMS += \
         mainwindow.ui \

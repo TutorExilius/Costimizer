@@ -17,22 +17,20 @@
 #include <QItemSelectionModel>
 #include <QMessageBox>
 
-#include "filedataprovider.h"
+#include "db_dataprovider.h"
 #include "shopitem.h"
+#include "discountershopitem.h"
 #include "configdialog.h"
 
 MainWindow::MainWindow( QWidget *parent )
 : QMainWindow{ parent }
 , ui{ new Ui::MainWindow }
-, dataProvider{ nullptr }
+, dbDataProvider{ nullptr }
 , config{ R"(C:\Users\exi\Desktop\config.txt)" }
 {
     this->ui->setupUi( this );
 
-    this->dataProvider = new FileDataProvider{
-                this->config.getValueOf( "ShopList_TXT" ),
-                this->config.getValueOf( "DiscounterList_TXT" )
-            };
+    this->dbDataProvider = new DB_DataProvider{ R"(C:\Users\exi\Desktop\Costimizer\costimizerDB.sqlite)" };
 
     this->myShoppingList = new MyList{ this->ui->listView_shoppingList };
 
@@ -62,24 +60,25 @@ MainWindow::MainWindow( QWidget *parent )
                       this, &MainWindow::onSettingsTriggered,
                       Qt::UniqueConnection );
 
+
     this->loadItemsIntoList();
 }
 
 MainWindow::~MainWindow()
 {
-    for( auto &item : this->myShopItems )
+    delete this->myShoppingList;
+    delete this->dbDataProvider;
+    delete this->ui;
+}
+
+void MainWindow::loadItemsIntoList()
+{
+    auto shopItems = this->dbDataProvider->getShopItems();
+
+    for( const auto &item : shopItems )
     {
-        delete item;
+        this->ui->listWidget_items->addItem( item.getName() );
     }
-
-    for( auto &item : this->myDiscounter )
-    {
-        delete item;
-    }
-
-    delete this->dataProvider;
-
-    delete ui;
 }
 
 void MainWindow::saveConfig( const Config config )
@@ -88,42 +87,14 @@ void MainWindow::saveConfig( const Config config )
     this->config.writeConfigFile();
 }
 
-QString MainWindow::getShopItemName( const ulong &id ) const
+QString MainWindow::getShopItemName( const ulong &shopItemID ) const
 {
-    for( const auto &shopItem : this->myShopItems )
-    {
-        if( shopItem->getId() == id )
-        {
-            return shopItem->getName();
-        }
-    }
-
-    return QString();
-}
-
-void MainWindow::loadItemsIntoList()
-{
-    auto shopItems = this->dataProvider->getShopItems();
-
-    for( const auto &item : shopItems )
-    {
-        this->ui->listWidget_items->addItem( item.getName() );
-    }
+    return this->dbDataProvider->getShopItemName( shopItemID );
 }
 
 ShopItem MainWindow::getShopItem( const QString &itemName )
 {
-    auto shopItems = this->dataProvider->getShopItems();
-
-    for( const auto &shopItem : shopItems )
-    {
-        if( shopItem.getName() == itemName )
-        {
-            return shopItem;
-        }
-    }
-
-    return ShopItem();
+    return this->dbDataProvider->getShopItem( itemName );
 }
 
 QPair<QString,int> MainWindow::splitString( QString item )
@@ -277,7 +248,26 @@ void MainWindow::onSettingsTriggered()
 
 void MainWindow::on_pushButton_generateLists_clicked()
 {
-    std::map<const Discounter*,QList<DiscounterShopItem>> generatedDiscounterShoppingLists;
+    for( int i=0; i<this->myShoppingList->rowCount(); ++i )
+    {
+        QModelIndex index = this->myShoppingList->index(i,0);
+        auto item = this->myShoppingList->data(index);
+
+        QString itemName = item.value<QString>();
+        ShopItem shopItem = this->getShopItem( itemName );
+
+        ulong shopItemId = shopItem.getId();
+
+        QList<DiscounterShopItem> discounterShopItems = this->dbDataProvider->getDiscounterShopItems( shopItemId );
+
+        if( discounterShopItems.size() > 0 )
+        {
+            qDebug() << "BLABLA";
+        }
+
+    }
+
+ /*   std::map<const Discounter*,QList<DiscounterShopItem>> generatedDiscounterShoppingLists;
 
     for( int i=0; i<this->myShoppingList->rowCount(); ++i )
     {
@@ -320,6 +310,7 @@ void MainWindow::on_pushButton_generateLists_clicked()
     {
         qDebug() << "NOPE, generation nix gutt";
     }
+    */
 }
 
 ShopListMap MainWindow::reduceToCheapestDiscounterShoppingLists( const ShopListMap &geratedDiscounterShoppingLists ) const

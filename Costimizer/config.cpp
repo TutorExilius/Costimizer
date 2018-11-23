@@ -72,7 +72,7 @@ bool Config::loadConfigFile()
 
         if( !line.isEmpty() )
         {
-            stringList.append( file.readLine().trimmed() );
+            stringList.append( line.trimmed() );
         }
     }
 

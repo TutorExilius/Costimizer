@@ -7,7 +7,7 @@ class DiscounterShopItem
 {
 public:
     DiscounterShopItem() = default;
-    explicit DiscounterShopItem( const ulong &discounterId, const ulong &shopItemId,
+    explicit DiscounterShopItem( const ulong &shopItemId, const ulong &discounterId,
                                  const double &normalPrice, const double &offerPrice );
 
     ulong getDiscounterId() const;
@@ -21,8 +21,8 @@ public:
     QString toString() const;
 
 private:
-    ulong discounterId;
     ulong shopItemId;
+    ulong discounterId;
     double normalPrice;
     double offerPrice;
 };

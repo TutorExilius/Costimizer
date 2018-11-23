@@ -457,8 +457,8 @@ QPushButton#pushButton_generateLists:pressed {
     <addaction name="action_Settings"/>
    </widget>
    <addaction name="menu_Datei"/>
-   <addaction name="menu_Hilfe"/>
    <addaction name="menu_Extras"/>
+   <addaction name="menu_Hilfe"/>
   </widget>
   <action name="action_Beenden">
    <property name="text">

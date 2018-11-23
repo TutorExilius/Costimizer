@@ -1,9 +1,7 @@
 #include "discounter.h"
 
 Discounter::Discounter()
-: id{ 0 }
-, name{ "" }
-, location{ "" }
+: Discounter{ 0u, "", "" }
 {
 }
 

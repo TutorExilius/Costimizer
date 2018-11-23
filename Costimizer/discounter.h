@@ -9,7 +9,7 @@ public:
     Discounter();
     Discounter( const ulong &id, const QString &name, const QString &location );
 
-    bool addShopItem( const ShopItem &shopItem );
+    // bool addShopItem( const ShopItem &shopItem );
 
     const ulong& getId() const;
     const QString& getName() const;

@@ -22,12 +22,7 @@ public:
 
 private slots:
     void onOkClicked();
-    void onRadioButton_TXT_checked();
-    void onRadioButton_DB_checked();
-
-    void on_textEdit_shopItemsFilePath_textChanged();
-
-    void on_textEdit_discounterFilePAth_textChanged();
+    void on_pushButton_cancel_clicked();
 
 private:
     Ui::ConfigDialog *ui;

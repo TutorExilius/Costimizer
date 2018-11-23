@@ -2,10 +2,10 @@
 
 #include <QString>
 
-DiscounterShopItem::DiscounterShopItem( const ulong &discounterId, const ulong &shopItemId,
+DiscounterShopItem::DiscounterShopItem( const ulong &shopItemId, const ulong &discounterId,
        const double &normalPrice, const double &offerPrice )
-: discounterId{ discounterId }
-, shopItemId{ shopItemId }
+: shopItemId{ shopItemId }
+, discounterId{ discounterId }
 , normalPrice{ normalPrice }
 , offerPrice{ offerPrice }
 {
