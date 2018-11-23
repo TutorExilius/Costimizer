@@ -14,6 +14,7 @@ public:
     Config& operator=( const Config &obj );
     QString& operator[]( const QString &key );
 
+    bool keyExists( const QString &key ) const;
     bool writeConfigFile() const;
 
     QString getValueOf( const QString &key ) const;

@@ -30,7 +30,8 @@ MainWindow::MainWindow( QWidget *parent )
 {
     this->ui->setupUi( this );
 
-    this->dbDataProvider = new DB_DataProvider{ R"(C:\Users\exi\Desktop\Costimizer\costimizerDB.sqlite)" };
+    const QString database = this->config.getValueOf("Database");
+    this->dbDataProvider = new DB_DataProvider{ database };
 
     this->myShoppingList = new MyList{ this->ui->listView_shoppingList };
 

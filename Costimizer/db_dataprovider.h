@@ -14,6 +14,7 @@ class DB_DataProvider
 public:
     DB_DataProvider( const QString &dbName );
     ~DB_DataProvider();
+
     ShopItem getShopItem( const QString &shopItemName ) const;
     QString getShopItemName( const uint &shopItemID  ) const;
     QList<ShopItem> getShopItems() const;

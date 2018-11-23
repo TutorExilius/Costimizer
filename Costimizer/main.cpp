@@ -7,9 +7,21 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    MainWindow *w = nullptr;
 
-    MainWindow w;
-    w.show();
+    try
+    {
+        w = new MainWindow;
+        w->show();
+    }
+    catch( const QString &error )
+    {
+        qDebug() << error;
+    }
+    catch( ... )
+    {
+        qDebug() << "Unknown error occurred";
+    }
 
     return a.exec();
 }

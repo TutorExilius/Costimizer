@@ -3,6 +3,8 @@
 
 #include "mainwindow.h"
 
+#include <QMessageBox>
+
 ConfigDialog::ConfigDialog( MainWindow *parentWindow, Config config )
 : QDialog{ parentWindow }
 , ui{ new Ui::ConfigDialog }
@@ -21,15 +23,9 @@ ConfigDialog::ConfigDialog( MainWindow *parentWindow, Config config )
 
     this->adjustSize();
 
-    // connections (signal/slot) ---
-    QObject::connect( this->ui->pushButton_ok, &QPushButton::clicked,
-                      this, &ConfigDialog::onOkClicked,
-                      Qt::UniqueConnection );
-
-    // TODO:
-
     // read config data ---
-    QString database = config.getValueOf("Database");
+    const QString database = config.getValueOf("Database");
+    this->ui->textEdit_databaseFilePath->setText( database );
     // ---
 }
 
@@ -38,9 +34,17 @@ ConfigDialog::~ConfigDialog()
     delete ui;
 }
 
-void ConfigDialog::onOkClicked()
+void ConfigDialog::on_pushButton_ok_clicked()
 {
+    this->config["Database"] = this->ui->textEdit_databaseFilePath->toPlainText();
+
     this->parentWindow->saveConfig( this->config );
+
+    QMessageBox msg;
+    msg.setWindowTitle( "Hinweis: Neustart erforderich" );
+    msg.setText( "Die Einstellung wird erst zum nächsten Programmstart wirksam." );
+    msg.exec();
+
     this->close();
 }
 

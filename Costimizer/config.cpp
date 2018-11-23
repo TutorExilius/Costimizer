@@ -10,7 +10,7 @@ Config::Config( const QString &configFile )
 {
     if( !this->loadConfigFile() )
     {
-        throw "Error while loading configFile: '"+ configFile +"'";
+        throw QString{ "Error while loading configFile: '"+ configFile +"'" };
     }
 }
 // ---
@@ -25,6 +25,11 @@ Config& Config::operator=( const Config &obj )
 
 QString& Config::operator[]( const QString &key )
 {
+    if( !this->keyExists( key ) )
+    {
+        throw QString{ "Missing 'Database' entry in config.txt" };
+    }
+
     return this->settings[key];
 }
 
@@ -41,7 +46,8 @@ bool Config::writeConfigFile() const
 
     for( auto settingKey : this->settings.keys() )
     {
-        out << settingKey << ":" << this->settings.value(settingKey) << '\n';
+        const QString keyValPair = settingKey + ":" +  this->settings.value(settingKey);
+        out << keyValPair << '\n';
     }
 
     file.close();
@@ -51,7 +57,17 @@ bool Config::writeConfigFile() const
 
 QString Config::getValueOf( const QString &key ) const
 {
-    return this->settings.value( key );
+    if( !this->keyExists( key ) )
+    {
+        throw QString{ "Missing 'Database' entry in config.txt" };
+    }
+
+    return this->settings[key];
+}
+
+bool Config::keyExists( const QString &key ) const
+{
+    return this->settings.contains( key );
 }
 
 // helper ---

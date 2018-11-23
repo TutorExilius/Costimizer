@@ -21,8 +21,8 @@ public:
     ~ConfigDialog();
 
 private slots:
-    void onOkClicked();
     void on_pushButton_cancel_clicked();
+    void on_pushButton_ok_clicked();
 
 private:
     Ui::ConfigDialog *ui;
