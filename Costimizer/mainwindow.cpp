@@ -21,6 +21,7 @@
 #include "shopitem.h"
 #include "discountershopitem.h"
 #include "configdialog.h"
+#include "discounterwindow.h"
 
 MainWindow::MainWindow( QWidget *parent )
 : QMainWindow{ parent }
@@ -38,7 +39,11 @@ MainWindow::MainWindow( QWidget *parent )
     this->ui->listView_shoppingList->setModel( this->myShoppingList );
 
     QObject::connect( this->ui->action_ber_Qt, &QAction::triggered,
-                      this, &MainWindow::onAbout,
+                      this, &MainWindow::onAboutQt,
+                      Qt::UniqueConnection );
+
+    QObject::connect( this->ui->action_ber_Costimizer, &QAction::triggered,
+                      this, &MainWindow::onAboutCostimizer,
                       Qt::UniqueConnection );
 
     QObject::connect( this->ui->listWidget_items, &QListWidget::itemDoubleClicked,
@@ -98,6 +103,35 @@ ShopItem MainWindow::getShopItem( const QString &itemName )
     return this->dbDataProvider->getShopItem( itemName );
 }
 
+void MainWindow::createDiscounterWindows( const QMap<ulong,QList<DiscounterShopItem>> &lowPricedDiscounters )
+{
+ //   QMap<ulong,DiscounterWindow*> discounterWindows;
+
+
+    DiscounterWindow *discounterWindows = new DiscounterWindow( this, this->dbDataProvider );
+    discounterWindows->addDiscounterShopItemsToListWidget( lowPricedDiscounters );
+    discounterWindows->show();
+
+    /*
+    for( const auto &key : lowPricedDiscounters.keys() )
+    {
+      //  DiscounterWindow *discounterWindow = new DiscounterWindow( this );
+      //  discounterWindow->setWindowTitle( QString::number( key ) );
+
+     //   if( !discounterWindows.contains( key ))
+
+        {
+            discounterWindows.insert( key, discounterWindow );
+        }
+    }
+
+    for( const auto &key : discounterWindows.keys() )
+    {
+        discounterWindows.value(key)->addDiscounterShopItemToListWidget( lowPricedDiscounters[key] );
+        discounterWindows.value(key)->show();
+    }*/
+}
+
 QPair<QString,int> MainWindow::splitString( QString item )
 {
     QPair<QString,int> pair;
@@ -123,9 +157,8 @@ QPair<QString,int> MainWindow::splitString( QString item )
         item = QString::fromStdString(itemStdStr);
     }
 
-    qDebug() << item << endl;
-
     item = item.trimmed();
+    qDebug() << item << endl;
 
     pair.first = item;
     pair.second = (quantity==0) ? 1 : quantity;
@@ -234,7 +267,12 @@ void MainWindow::onReduceOneClicked()
     }
 }
 
-void MainWindow::onAbout()
+void MainWindow::onAboutCostimizer()
+{
+    QMessageBox::about( this, "About Costimizer", "A \"C++ Let's Try [Qt]\" - Community Project\nof Tutor Exilius (http://twitch.tv/TutorExilius)");
+}
+
+void MainWindow::onAboutQt()
 {
     QMessageBox::aboutQt( this );
 }
@@ -249,26 +287,7 @@ void MainWindow::onSettingsTriggered()
 
 void MainWindow::on_pushButton_generateLists_clicked()
 {
-    for( int i=0; i<this->myShoppingList->rowCount(); ++i )
-    {
-        QModelIndex index = this->myShoppingList->index(i,0);
-        auto item = this->myShoppingList->data(index);
-
-        QString itemName = item.value<QString>();
-        ShopItem shopItem = this->getShopItem( itemName );
-
-        ulong shopItemId = shopItem.getId();
-
-        QList<DiscounterShopItem> discounterShopItems = this->dbDataProvider->getDiscounterShopItems( shopItemId );
-
-        if( discounterShopItems.size() > 0 )
-        {
-            qDebug() << "BLABLA";
-        }
-
-    }
-
- /*   std::map<const Discounter*,QList<DiscounterShopItem>> generatedDiscounterShoppingLists;
+    QList<DiscounterShopItem> allLowPricedDiscounters;
 
     for( int i=0; i<this->myShoppingList->rowCount(); ++i )
     {
@@ -276,47 +295,35 @@ void MainWindow::on_pushButton_generateLists_clicked()
         auto item = this->myShoppingList->data(index);
 
         QString itemName = item.value<QString>();
-        ShopItem shopItem = this->getShopItem( itemName );
+        QPair<QString, int> itemShopPair = MainWindow::splitString( itemName );
+        ShopItem shopItem = this->getShopItem( itemShopPair.first );
 
         ulong shopItemId = shopItem.getId();
-        QList<const Discounter*> discounters = this->dataProvider->getDiscountersRefs( shopItemId );
 
-        for( const Discounter *discounter : discounters )
+        QList<DiscounterShopItem> lowPricedDiscounters = this->dbDataProvider->getLowPricedDiscounters( shopItemId );
+
+        // Collect all DiscounterShopItems
+        for( const auto &lowPricedDiscounter : lowPricedDiscounters )
         {
-            QList<DiscounterShopItem> discounterItems = this->dataProvider->getDiscounterShopItems( discounter->getId() );
-
-            for( const DiscounterShopItem &discounterShopItem : discounterItems )
-            {
-                if( discounterShopItem.getShopItemId() == shopItemId )
-                {
-                    generatedDiscounterShoppingLists[discounter].append(discounterShopItem);
-                }
-            }
+            allLowPricedDiscounters.push_back( lowPricedDiscounter );
         }
     }
 
-    if( generatedDiscounterShoppingLists.size() )
+
+    // Build Map
+    QMap<ulong,QList<DiscounterShopItem>> mapLowPricedDiscounters;
+
+    for( const auto &lowPricedDiscounter : allLowPricedDiscounters )
     {
-        for( const auto &key : generatedDiscounterShoppingLists )
+        const ulong discounterId = lowPricedDiscounter.getDiscounterId();
+
+        if( !mapLowPricedDiscounters.contains( discounterId ) )
         {
-            qDebug() << "Key: " << key.first->toString();
-
-            for( const auto &val : key.second )
-            {
-                qDebug() << val.toString();
-            }
+            mapLowPricedDiscounters.insert( discounterId, QList<DiscounterShopItem>{} );
         }
+
+        mapLowPricedDiscounters[discounterId].append( lowPricedDiscounter );
     }
-    else
-    {
-        qDebug() << "NOPE, generation nix gutt";
-    }
-    */
-}
 
-ShopListMap MainWindow::reduceToCheapestDiscounterShoppingLists( const ShopListMap &geratedDiscounterShoppingLists ) const
-{
-
-    // TODO filtere die günstigsten ShopItems und die Informationen, in welchem Discounter diese zu finden sind
-
+    this->createDiscounterWindows( mapLowPricedDiscounters );
 }

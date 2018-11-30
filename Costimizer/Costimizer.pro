@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets sql
+QT       += core gui widgets sql printsupport
 
 TARGET = Costimizer
 TEMPLATE = app
@@ -31,7 +31,8 @@ SOURCES += \
     discountershopitem.cpp \
     config.cpp \
     configdialog.cpp \
-    db_dataprovider.cpp
+    db_dataprovider.cpp \
+    discounterwindow.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -41,11 +42,15 @@ HEADERS += \
     discountershopitem.h \
     config.h \
     configdialog.h \
-    db_dataprovider.h
+    db_dataprovider.h \
+    discounterwindow.h
 
 FORMS += \
         mainwindow.ui \
-    configdialog.ui
+    configdialog.ui \
+    discounterwindow.ui \
+    discounterwindow.ui \
+    discounterwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -19,7 +19,7 @@ class DiscounterShopItem;
 using ShopListMap = std::map<const Discounter*,QList<DiscounterShopItem>>;
 
 namespace Ui {
-class MainWindow;
+    class MainWindow;
 }
 
 class MainWindow : public QMainWindow
@@ -27,6 +27,8 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
+    static QPair<QString,int> splitString( QString item );
+
     explicit MainWindow( QWidget *parent = nullptr );
     virtual ~MainWindow();
 
@@ -41,18 +43,18 @@ public slots:
     void onReduceOneClicked();
 
 private slots:
-    void onAbout();
+    void onAboutQt();
+    void onAboutCostimizer();
     void onSettingsTriggered();
     void on_pushButton_generateLists_clicked();
 
 private:
     void combineEntries();
-    QPair<QString,int> splitString( QString item );
     QString buildItemCountedEntryName( const QPair<QString,int> &itemKey );
     void addItem( const QString &item );
     void loadItemsIntoList();
     ShopItem getShopItem( const QString &itemName );
-    ShopListMap reduceToCheapestDiscounterShoppingLists( const ShopListMap &geratedDiscounterShoppingLists ) const;
+    void createDiscounterWindows( const QMap<ulong,QList<DiscounterShopItem>> &lowPricedDiscounters );
 
     Ui::MainWindow *ui;
 

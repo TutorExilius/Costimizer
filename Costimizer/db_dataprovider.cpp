@@ -54,6 +54,27 @@ ShopItem DB_DataProvider::getShopItem( const QString &shopItemName ) const
     }
 }
 
+ShopItem DB_DataProvider::getShopItem( const uint &shopItemID ) const
+{
+    QSqlQuery query;
+
+    if( query.exec("SELECT * FROM shopItem WHERE ShopItemID = " + QString::number( shopItemID ) ) )
+    {
+        if( query.next() )
+        {
+            const uint id = query.value(0).toUInt();
+            const QString name = query.value(1).toString();
+
+            return ShopItem{ id, name };
+        }
+    }
+    else
+    {
+        qDebug() << "query.exec()-Error: " << this->db.lastError();
+        return ShopItem{};
+    }
+}
+
 QString DB_DataProvider::getShopItemName( const uint &shopItemID  ) const
 {
     QSqlQuery query;
@@ -145,6 +166,40 @@ QList<Discounter> DB_DataProvider::getDiscounters() const
     }
 
     return discounters;
+}
+
+QList<DiscounterShopItem> DB_DataProvider::getLowPricedDiscounters( const uint &shopItemID ) const
+{
+    QList<DiscounterShopItem> discounterShopItems;
+
+    QSqlQuery query;
+
+    QString sql = "SELECT NormalPrice, ShopItemID, DiscounterID, OfferPrice ";
+    sql += "FROM discounter_shopitem WHERE ShopItemID = " + QString::number( shopItemID ) + " " +
+           "AND NormalPrice > 0.0 AND NormalPrice = (" +
+            "SELECT MIN(NormalPrice) FROM discounter_shopitem WHERE ShopItemID = " +
+            QString::number( shopItemID ) + " "  +
+            "AND NormalPrice > 0.0)";
+
+    if( query.exec( sql ) )
+    {
+        while( query.next() )
+        {
+            const uint shopItemID = query.value("ShopItemID").toUInt();
+            const uint discounterID = query.value("DiscounterID").toUInt();
+            const double normalPrice = query.value("NormalPrice").toDouble();
+            const double offerPrice = query.value("OfferPrice").toDouble();
+
+            discounterShopItems.append( DiscounterShopItem{ shopItemID, discounterID, normalPrice, offerPrice } );
+        }
+    }
+    else
+    {
+        qDebug() << "query.exec()-Error: " << this->db.lastError();
+        return QList<DiscounterShopItem>{};
+    }
+
+    return discounterShopItems;
 }
 
 

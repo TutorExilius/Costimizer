@@ -441,6 +441,7 @@ QPushButton#pushButton_generateLists:pressed {
     <property name="title">
      <string>&amp;Datei</string>
     </property>
+    <addaction name="separator"/>
     <addaction name="action_Beenden"/>
    </widget>
    <widget class="QMenu" name="menu_Hilfe">
@@ -478,6 +479,11 @@ QPushButton#pushButton_generateLists:pressed {
   <action name="action_Settings">
    <property name="text">
     <string>&amp;Einstellungen</string>
+   </property>
+  </action>
+  <action name="action_Importieren">
+   <property name="text">
+    <string>&amp;Importieren ...</string>
    </property>
   </action>
  </widget>

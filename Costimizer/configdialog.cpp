@@ -4,6 +4,7 @@
 #include "mainwindow.h"
 
 #include <QMessageBox>
+#include <QFileDialog>
 
 ConfigDialog::ConfigDialog( MainWindow *parentWindow, Config config )
 : QDialog{ parentWindow }
@@ -51,4 +52,16 @@ void ConfigDialog::on_pushButton_ok_clicked()
 void ConfigDialog::on_pushButton_cancel_clicked()
 {
     this->close();
+}
+
+void ConfigDialog::on_pushButton_chooseDatabaseFile_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, ("Select SQLITE Database"),
+                                                      QDir::currentPath(),
+                                                      ("SQLITE (*.sqlite *.db)"));
+
+    if( !fileName.isEmpty() )
+    {
+        this->ui->textEdit_databaseFilePath->setText( fileName );
+    }
 }
