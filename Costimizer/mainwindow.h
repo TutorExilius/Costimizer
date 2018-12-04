@@ -54,7 +54,9 @@ private:
     void addItem( const QString &item );
     void loadItemsIntoList();
     ShopItem getShopItem( const QString &itemName );
-    void createDiscounterWindows( const QMap<ulong,QList<DiscounterShopItem>> &lowPricedDiscounters );
+    void createDiscounterWindows( const QMap<ulong,QList<DiscounterShopItem>> &lowPricedDiscounters,
+                                  const QMap<ulong,QList<DiscounterShopItem>> &otherPricedDiscounters,
+                                  const QList<ShopItem> &shopItemsWithoutDiscounter );
 
     Ui::MainWindow *ui;
 

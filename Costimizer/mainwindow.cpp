@@ -103,13 +103,14 @@ ShopItem MainWindow::getShopItem( const QString &itemName )
     return this->dbDataProvider->getShopItem( itemName );
 }
 
-void MainWindow::createDiscounterWindows( const QMap<ulong,QList<DiscounterShopItem>> &lowPricedDiscounters )
+void MainWindow::createDiscounterWindows( const QMap<ulong,QList<DiscounterShopItem>> &lowPricedDiscounters,
+                                          const QMap<ulong,QList<DiscounterShopItem>> &otherPricedDiscounters,
+                                          const QList<ShopItem> &shopItemsWithoutDiscounter )
 {
  //   QMap<ulong,DiscounterWindow*> discounterWindows;
-
-
     DiscounterWindow *discounterWindows = new DiscounterWindow( this, this->dbDataProvider );
-    discounterWindows->addDiscounterShopItemsToListWidget( lowPricedDiscounters );
+    discounterWindows->addDiscounterShopItemsToListWidget( lowPricedDiscounters, otherPricedDiscounters );
+    discounterWindows->addShopItmesToListWidget( shopItemsWithoutDiscounter );
     discounterWindows->show();
 
     /*
@@ -288,6 +289,8 @@ void MainWindow::onSettingsTriggered()
 void MainWindow::on_pushButton_generateLists_clicked()
 {
     QList<DiscounterShopItem> allLowPricedDiscounters;
+    QList<DiscounterShopItem> allPricedDiscounters;
+    QList<ShopItem> shopItemsWithoutDiscounter;
 
     for( int i=0; i<this->myShoppingList->rowCount(); ++i )
     {
@@ -300,18 +303,36 @@ void MainWindow::on_pushButton_generateLists_clicked()
 
         ulong shopItemId = shopItem.getId();
 
-        QList<DiscounterShopItem> lowPricedDiscounters = this->dbDataProvider->getLowPricedDiscounters( shopItemId );
+        QList<DiscounterShopItem> tmp_lowPricedDiscounters = this->dbDataProvider->getLowPricedDiscounters( shopItemId );
+        QList<DiscounterShopItem> tmp_allPricedDiscounters = this->dbDataProvider->getAllPricedDiscounters( shopItemId );
+
+        QList<uint> alreadyCollectedDiscounters;
 
         // Collect all DiscounterShopItems
-        for( const auto &lowPricedDiscounter : lowPricedDiscounters )
+        for( const auto &lowPricedDiscounter : tmp_lowPricedDiscounters )
         {
             allLowPricedDiscounters.push_back( lowPricedDiscounter );
+            alreadyCollectedDiscounters.push_back( lowPricedDiscounter.getDiscounterId() );
+        }
+
+        // Collect all DiscounterShopItems
+        for( const auto &pricedDiscounter : tmp_allPricedDiscounters )
+        {
+            if( !alreadyCollectedDiscounters.contains( pricedDiscounter.getDiscounterId() ) )
+            {
+                allPricedDiscounters.push_back( pricedDiscounter );
+            }
+        }
+
+        if( tmp_allPricedDiscounters.size() == 0 )
+        {
+           shopItemsWithoutDiscounter.push_back( shopItem );
         }
     }
 
-
     // Build Map
     QMap<ulong,QList<DiscounterShopItem>> mapLowPricedDiscounters;
+    QMap<ulong,QList<DiscounterShopItem>> mapOtherPricedDiscounters;
 
     for( const auto &lowPricedDiscounter : allLowPricedDiscounters )
     {
@@ -325,5 +346,17 @@ void MainWindow::on_pushButton_generateLists_clicked()
         mapLowPricedDiscounters[discounterId].append( lowPricedDiscounter );
     }
 
-    this->createDiscounterWindows( mapLowPricedDiscounters );
+    for( const auto &pricedDiscounter : allPricedDiscounters )
+    {
+        const ulong discounterId = pricedDiscounter.getDiscounterId();
+
+        if( !mapOtherPricedDiscounters.contains( discounterId ) )
+        {
+            mapOtherPricedDiscounters.insert( discounterId, QList<DiscounterShopItem>{} );
+        }
+
+        mapOtherPricedDiscounters[discounterId].append( pricedDiscounter );
+    }
+
+    this->createDiscounterWindows( mapLowPricedDiscounters, mapOtherPricedDiscounters, shopItemsWithoutDiscounter );
 }

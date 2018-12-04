@@ -202,6 +202,37 @@ QList<DiscounterShopItem> DB_DataProvider::getLowPricedDiscounters( const uint &
     return discounterShopItems;
 }
 
+QList<DiscounterShopItem> DB_DataProvider::getAllPricedDiscounters(const uint &shopItemID) const
+{
+    QList<DiscounterShopItem> discounterShopItems;
+
+    QSqlQuery query;
+
+    QString sql = "SELECT NormalPrice, ShopItemID, DiscounterID, OfferPrice ";
+    sql += "FROM discounter_shopitem WHERE ShopItemID = " + QString::number( shopItemID ) + " " +
+           "AND NormalPrice > 0.0";
+
+    if( query.exec( sql ) )
+    {
+        while( query.next() )
+        {
+            const uint shopItemID = query.value("ShopItemID").toUInt();
+            const uint discounterID = query.value("DiscounterID").toUInt();
+            const double normalPrice = query.value("NormalPrice").toDouble();
+            const double offerPrice = query.value("OfferPrice").toDouble();
+
+            discounterShopItems.append( DiscounterShopItem{ shopItemID, discounterID, normalPrice, offerPrice } );
+        }
+    }
+    else
+    {
+        qDebug() << "query.exec()-Error: " << this->db.lastError();
+        return QList<DiscounterShopItem>{};
+    }
+
+    return discounterShopItems;
+}
+
 
 QList<DiscounterShopItem> DB_DataProvider::getDiscounterShopItems() const
 {

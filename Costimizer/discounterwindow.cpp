@@ -28,15 +28,18 @@ DiscounterWindow::~DiscounterWindow()
     delete ui;
 }
 
-void DiscounterWindow::addDiscounterShopItemsToListWidget( const QMap<ulong, QList<DiscounterShopItem>> &lowPricedDiscounters )
+void DiscounterWindow::addDiscounterShopItemsToListWidget( const QMap<ulong,QList<DiscounterShopItem>> &lowPricedDiscounters,
+                                                           const QMap<ulong,QList<DiscounterShopItem>> &otherPricedDiscounters )
 {
     for( const auto &key : lowPricedDiscounters.keys() )
     {
+        double sumLowPriced = 0.0;
+        double sumPrice = 0.0;
+
         const Discounter discounter =  this->ref_dbDataProvider->getDiscounter( key );
 
         const QString discounterName = discounter.getName();
         const QString discounterLocation = discounter.getLocation();
-
 
         this->insertDiscounterName( discounterName );
         this->insertDiscounterLocation( discounterLocation );
@@ -45,13 +48,53 @@ void DiscounterWindow::addDiscounterShopItemsToListWidget( const QMap<ulong, QLi
 
         for( const auto &value : lowPricedDiscounters.value( key ) )
         {
-            const QString shopItemName = this->ref_dbDataProvider->getShopItemName( value.getShopItemId() );
-            this->insertDiscounterShopItem( shopItemName );
+            QString shopItemName = this->ref_dbDataProvider->getShopItemName( value.getShopItemId() );
+
+            QString text =  "(N:" + QString::number( value.getNormalPrice() );
+            text += ( value.getOfferPrice() > 0.0 )
+                    ? "/A:" + QString::number( value.getOfferPrice() ) + ") " + shopItemName
+                    : ") " + shopItemName;
+
+            this->insertDiscounterShopItem( text );
+
+            sumLowPriced += value.getNormalPrice();
         }
+
+        sumPrice = sumLowPriced;
+
+        for( const auto &value : otherPricedDiscounters.value( key ) )
+        {
+            const QString shopItemName = this->ref_dbDataProvider->getShopItemName( value.getShopItemId() );
+
+            QString text =  "(N:" + QString::number( value.getNormalPrice() );
+            text += ( value.getOfferPrice() > 0.0 )
+                    ? "/A:" + QString::number( value.getOfferPrice() ) + ") " + shopItemName
+                    :  ") " + shopItemName;
+
+
+            this->insertDiscounterShopItem( text, Qt::gray );
+
+            sumPrice += value.getNormalPrice() ;
+        }
+
+        this->insertEmptyLine();
+
+        this->insertDiscounterShopItem( QString::number(sumLowPriced) );
+        this->insertDiscounterShopItem( QString::number(sumPrice), Qt::gray );
 
         this->insertEmptyLine();
         this->insertSpacer();
         this->insertEmptyLine();
+    }
+}
+
+void DiscounterWindow::addShopItmesToListWidget( const QList<ShopItem> &shopItemsWithoutDiscounter )
+{
+    this->insertEmptyLine();
+
+    for( const auto &shopItem : shopItemsWithoutDiscounter )
+    {
+        this->insertDiscounterShopItem( shopItem.getName(), QColor::fromRgb( 255, 165, 0 ) );
     }
 }
 
@@ -77,11 +120,11 @@ void DiscounterWindow::insertDiscounterLocation( const QString &content )
     ++this->rowCount;
 }
 
-void DiscounterWindow::insertDiscounterShopItem( const QString &content )
+void DiscounterWindow::insertDiscounterShopItem( const QString &content, const QColor &color )
 {
     QListWidgetItem *item = new QListWidgetItem;
     item->setText( content );
-    item->setTextColor( Qt::black );
+    item->setTextColor( color );
     item->setFont( QFont( "Verdana", 10 ) );
 
     this->ui->listWidget_discounterShopItems->insertItem( this->rowCount, item );
@@ -121,12 +164,8 @@ QString DiscounterWindow::toHtml( QListWidgetItem *item )
     return html.replace( "<body style=\"", "<body style=\"color: " + item->textColor().name() + "; ");
 }
 
-void DiscounterWindow::on_pushButton_toClipboard_clicked()
+void DiscounterWindow::on_pushButton_printToPdf_clicked()
 {
-//    QClipboard *clipboard = QApplication::clipboard();
-
-//    QMimeData *mimeData = new QMimeData;
-
     QTextEdit *textEdit = new QTextEdit;
 
     for( int i=0; i<this->rowCount; ++i )

@@ -19,8 +19,7 @@ ConfigDialog::ConfigDialog( MainWindow *parentWindow, Config config )
     // remove help icon
     Qt::WindowFlags flags = this->windowFlags();
     Qt::WindowFlags helpFlag = Qt::WindowContextHelpButtonHint;
-    Qt::WindowFlags closeFlag = Qt::WindowCloseButtonHint;
-    this->setWindowFlags( flags & ~helpFlag & ~closeFlag );
+    this->setWindowFlags( flags & ~helpFlag );
 
     this->adjustSize();
 

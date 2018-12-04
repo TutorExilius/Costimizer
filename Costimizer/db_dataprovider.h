@@ -22,6 +22,7 @@ public:
     Discounter getDiscounter( const uint &discounterID ) const;
     QList<Discounter> getDiscounters() const;
     QList<DiscounterShopItem> getLowPricedDiscounters( const uint &shopItemID ) const;
+    QList<DiscounterShopItem> getAllPricedDiscounters( const uint &shopItemID ) const;
     QList<DiscounterShopItem> getDiscounterShopItems() const;
     QList<DiscounterShopItem> getDiscounterShopItems( const uint &shopItemID ) const;
 
