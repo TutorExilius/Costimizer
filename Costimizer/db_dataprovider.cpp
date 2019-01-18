@@ -117,6 +117,10 @@ QList<ShopItem> DB_DataProvider::getShopItems() const
         return QList<ShopItem>{};
     }
 
+    std::sort( shopItems.begin(), shopItems.end(), []( const ShopItem &a, const ShopItem &b ){
+       return a.getName() < b.getName();
+    });
+
     return shopItems;
 }
 

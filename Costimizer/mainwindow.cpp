@@ -29,7 +29,7 @@ MainWindow::MainWindow( QWidget *parent )
 : QMainWindow{ parent }
 , ui{ new Ui::MainWindow }
 , dbDataProvider{ nullptr }
-, config{ R"(C:\Users\exi\Desktop\config.txt)" }
+, config{ QCoreApplication::applicationDirPath() + "/config.txt" }
 {
     this->ui->setupUi( this );
 
