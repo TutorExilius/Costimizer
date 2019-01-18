@@ -25,9 +25,6 @@
 #include "configdialog.h"
 #include "discounterwindow.h"
 
-#include "table_printer.h"
-using namespace bprinter;
-
 MainWindow::MainWindow( QWidget *parent )
 : QMainWindow{ parent }
 , ui{ new Ui::MainWindow }
@@ -79,7 +76,6 @@ MainWindow::MainWindow( QWidget *parent )
     QObject::connect( this->ui->action_Settings, &QAction::triggered,
                       this, &MainWindow::onSettingsTriggered,
                       Qt::UniqueConnection );
-
 
     this->loadItemsIntoList();
 }
