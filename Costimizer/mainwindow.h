@@ -22,6 +22,21 @@ namespace Ui {
     class MainWindow;
 }
 
+// type-definitions ---
+enum class PriceType { UNKNOWN = 0, REAL, ESTIMATED };
+
+struct Price
+{
+    Price( const double &price = 0.0, const PriceType type = PriceType::UNKNOWN )
+        : price{ price }, priceType{ type }
+    {
+    }
+
+    double price;
+    PriceType priceType;
+};
+// ---
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -39,6 +54,7 @@ public:
 public slots:
     void onDoubleClicked( QListWidgetItem *item );
     void onShiftClicked();
+    void onShiftClicked_simplyfiedVersion();
     void onDeleteSelectionsClicked();
     void onReduceOneClicked();
 
@@ -51,12 +67,14 @@ private slots:
 private:
     void combineEntries();
     QString buildItemCountedEntryName( const QPair<QString,int> &itemKey );
-    void addItem( const QString &item );
+    void addItem( const QString &item, bool multipleInsert = true );
     void loadItemsIntoList();
     ShopItem getShopItem( const QString &itemName );
-    void createDiscounterWindows( const QMap<ulong,QList<DiscounterShopItem>> &lowPricedDiscounters,
-                                  const QMap<ulong,QList<DiscounterShopItem>> &otherPricedDiscounters,
-                                  const QList<ShopItem> &shopItemsWithoutDiscounter );
+    bool existsInShoppingList( const QString &item );
+    //void createDiscounterWindows( const QMap<ulong,QList<DiscounterShopItem>> &lowPricedDiscounters,
+      //                            const QMap<ulong,QList<DiscounterShopItem>> &otherPricedDiscounters,
+        //                          const QList<ShopItem> &shopItemsWithoutDiscounter );
+    QList<ShopItem> getMyShopList() const;
 
     Ui::MainWindow *ui;
 

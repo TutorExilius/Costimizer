@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>800</height>
+    <width>407</width>
+    <height>388</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,22 +19,21 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QListWidget" name="listWidget_discounterShopItems">
-      <property name="selectionMode">
-       <enum>QAbstractItemView::MultiSelection</enum>
-      </property>
-      <property name="selectionBehavior">
-       <enum>QAbstractItemView::SelectRows</enum>
-      </property>
-     </widget>
+     <layout class="QVBoxLayout" name="verticalLayout_table"/>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="topMargin">
+       <number>0</number>
+      </property>
       <property name="bottomMargin">
        <number>0</number>
       </property>
       <item>
        <widget class="QPushButton" name="pushButton_printToPdf">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="text">
          <string>Als PDF exportieren</string>
         </property>

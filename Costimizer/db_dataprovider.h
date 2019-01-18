@@ -25,6 +25,8 @@ public:
     QList<DiscounterShopItem> getAllPricedDiscounters( const uint &shopItemID ) const;
     QList<DiscounterShopItem> getDiscounterShopItems() const;
     QList<DiscounterShopItem> getDiscounterShopItems( const uint &shopItemID ) const;
+    double getNormalPrice( const uint &shopItemID, const uint &discounterID ) const;
+    double getAverageNormalPriceOfShopItem( const uint &shopItemID ) const;
 
 private:
     QString dbName;

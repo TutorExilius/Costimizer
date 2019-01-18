@@ -48,8 +48,6 @@ HEADERS += \
 FORMS += \
         mainwindow.ui \
     configdialog.ui \
-    discounterwindow.ui \
-    discounterwindow.ui \
     discounterwindow.ui
 
 # Default rules for deployment.

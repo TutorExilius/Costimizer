@@ -9,6 +9,8 @@
 #include <QDebug>
 #include <QString>
 #include <QPair>
+#include <QTableWidget>
+#include <QFontDatabase>
 
 #include <map>
 #include <string>
@@ -23,6 +25,9 @@
 #include "configdialog.h"
 #include "discounterwindow.h"
 
+#include "table_printer.h"
+using namespace bprinter;
+
 MainWindow::MainWindow( QWidget *parent )
 : QMainWindow{ parent }
 , ui{ new Ui::MainWindow }
@@ -30,6 +35,8 @@ MainWindow::MainWindow( QWidget *parent )
 , config{ R"(C:\Users\exi\Desktop\config.txt)" }
 {
     this->ui->setupUi( this );
+
+    this->ui->pushButton_reduce1->setVisible( false );
 
     const QString database = this->config.getValueOf("Database");
     this->dbDataProvider = new DB_DataProvider{ database };
@@ -51,8 +58,15 @@ MainWindow::MainWindow( QWidget *parent )
                       Qt::UniqueConnection );
 
     QObject::connect( this->ui->pushButton_shiftItem, &QPushButton::clicked,
+                      this, &MainWindow::onShiftClicked_simplyfiedVersion,
+                      Qt::UniqueConnection );
+
+    /* With Combination Mutltiple items in list  1x,..2x,..3x
+
+    QObject::connect( this->ui->pushButton_shiftItem, &QPushButton::clicked,
                       this, &MainWindow::onShiftClicked,
                       Qt::UniqueConnection );
+    */
 
     QObject::connect( this->ui->pushButton_deleteSelections, &QPushButton::clicked,
                       this, &MainWindow::onDeleteSelectionsClicked,
@@ -103,6 +117,7 @@ ShopItem MainWindow::getShopItem( const QString &itemName )
     return this->dbDataProvider->getShopItem( itemName );
 }
 
+/*
 void MainWindow::createDiscounterWindows( const QMap<ulong,QList<DiscounterShopItem>> &lowPricedDiscounters,
                                           const QMap<ulong,QList<DiscounterShopItem>> &otherPricedDiscounters,
                                           const QList<ShopItem> &shopItemsWithoutDiscounter )
@@ -130,8 +145,9 @@ void MainWindow::createDiscounterWindows( const QMap<ulong,QList<DiscounterShopI
     {
         discounterWindows.value(key)->addDiscounterShopItemToListWidget( lowPricedDiscounters[key] );
         discounterWindows.value(key)->show();
-    }*/
+    }
 }
+*/
 
 QPair<QString,int> MainWindow::splitString( QString item )
 {
@@ -159,12 +175,45 @@ QPair<QString,int> MainWindow::splitString( QString item )
     }
 
     item = item.trimmed();
-    qDebug() << item << endl;
+    qDebug() << item;
 
     pair.first = item;
     pair.second = (quantity==0) ? 1 : quantity;
 
     return pair;
+}
+
+QList<ShopItem> MainWindow::getMyShopList() const
+{
+    QList< ShopItem> shopItems;
+
+    for( int i = 0; i < this->myShoppingList->rowCount(); ++i )
+    {
+        const QModelIndex index = this->myShoppingList->index(i);
+        const QString shopItemName = this->myShoppingList->data( index ).toString() ;
+
+        ShopItem shopItem = this->dbDataProvider->getShopItem( shopItemName );
+
+        shopItems.append( shopItem );
+    }
+
+    return shopItems;
+}
+
+bool MainWindow::existsInShoppingList( const QString &item )
+{
+    for( int i = 0; i < this->myShoppingList->rowCount(); ++i )
+    {
+        QModelIndex index = this->myShoppingList->index(i);
+        QString _item = (this->myShoppingList->data( index )).toString();
+
+        if( _item == item )
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void MainWindow::combineEntries()
@@ -212,11 +261,23 @@ QString MainWindow::buildItemCountedEntryName( const QPair<QString,int> &itemKey
     return itemVal + itemKey.first;
 }
 
-void MainWindow::addItem( const QString &item )
+void MainWindow::addItem( const QString &item, bool multipleInsert )
 {
-    if( item.size() > 0 )
+    if( item.isEmpty() )
+    {
+        return;
+    }
+
+    if( multipleInsert )
     {
         this->myShoppingList->addItem( item );
+    }
+    else
+    {
+        if( !this->existsInShoppingList( item ) )
+        {
+            this->myShoppingList->addItem( item );
+        }
     }
 }
 
@@ -229,6 +290,15 @@ void MainWindow::onDoubleClicked( QListWidgetItem *item )
     this->ui->listWidget_items->reset();
 }
 
+void MainWindow::onShiftClicked_simplyfiedVersion()
+{
+    QList<QListWidgetItem*> selectedItems = this->ui->listWidget_items->selectedItems();
+
+    for( const auto &item : selectedItems )
+    {
+        this->addItem( this->splitString(item->text()).first, false );
+    }
+}
 
 void MainWindow::onShiftClicked()
 {
@@ -288,6 +358,191 @@ void MainWindow::onSettingsTriggered()
 
 void MainWindow::on_pushButton_generateLists_clicked()
 {
+    // Discounter -> List(ShopItemName->Price (real/extimated))
+  //  QMap<QString,QList<QPair<QString,Price>>> items;
+    std::map<QString,QList<QPair<QString,Price>>> items;
+
+    QList<ShopItem> shopItems = this->getMyShopList();
+
+    if( shopItems.isEmpty() )
+    {
+        return;
+    }
+
+    for( const auto &discounter : this->dbDataProvider->getDiscounters() )
+    {
+        items.insert( std::make_pair(discounter.getName(), QList<QPair<QString,Price>>{}) );
+
+        for( const auto &shopItem : shopItems )
+        {
+            double price = this->dbDataProvider->getNormalPrice(
+                        shopItem.getId(), discounter.getId() );
+
+            PriceType type;
+
+            if( price > 0.0 )
+            {
+                type = PriceType::REAL;
+            }
+            else
+            {
+                price = this->dbDataProvider->getAverageNormalPriceOfShopItem( shopItem.getId() );
+                type = PriceType::ESTIMATED;
+            }
+
+            items[discounter.getName()].append( QPair<QString,Price>{shopItem.getName(), Price{ price, type }} );
+        }
+    }
+
+    // TODO: calculate all estimated prices
+
+    // Discounter -> sum of all ShopItems-normalPrices
+    std::map<QString,double> sumAmountDiscounter;
+    std::map<QString,double> coveragePriceDiscounter;
+
+    for( const auto &mapItem : items )
+    {
+        double sumPrice = 0.0;
+        int cntRealPrices = 0;
+        const int cntPrices = shopItems.size();
+
+        for( const auto &pair : items[mapItem.first] )
+        {
+
+            sumPrice += pair.second.price;
+
+            if( pair.second.priceType == PriceType::REAL )
+            {
+                ++cntRealPrices;
+            }
+        }
+
+        sumAmountDiscounter.insert( std::make_pair(mapItem.first, sumPrice) );
+        coveragePriceDiscounter.insert( std::make_pair(mapItem.first,
+                    cntRealPrices * 100 / cntPrices ) );
+    }
+
+    int maxLength = 0;
+
+    // find max string shopITem Name
+    for( const auto &shopItem : shopItems )
+    {
+        const QString shopItemName = shopItem.getName();
+
+        if( maxLength < shopItemName.size() )
+        {
+            maxLength = shopItemName.size();
+        }
+    }
+
+    // TODO output data
+
+    QFont font("Monospace");
+    font.setStyleHint(QFont::TypeWriter);
+
+    QTableWidget *tableWidget = new QTableWidget( this );
+    tableWidget->setFont( font );
+    tableWidget->setColumnCount( items.size() + 1 );
+    tableWidget->setRowCount( shopItems.size() + 2 );
+
+    int colIndex = 0;
+    int rowIndex = 0;
+
+    QTableWidgetItem *item = new QTableWidgetItem( "" );
+    tableWidget->setItem( 0, colIndex++, item );
+
+    // Fill Disounternames
+    for( const auto &keyVal : items )
+    {
+        item = new QTableWidgetItem( keyVal.first );
+        item->setTextColor( QColor::fromRgb(66,99,185) );
+
+        font = item->font();
+        font.setPointSize( 12 );
+        font.setBold( true );
+
+        item->setFont( font ) ;
+        tableWidget->setItem( 0, colIndex++, item);
+    }
+
+    ++rowIndex;
+
+    // Fill ShopitemNames + Prices/EstimatedPrices
+    for( const auto &shopItem : shopItems )
+    {
+        colIndex = 0;
+
+        item = new QTableWidgetItem( shopItem.getName() );
+        tableWidget->setItem( rowIndex, 0, item );
+
+        for( const auto &keyVal : items )
+        {
+
+            for( const auto &val : keyVal.second )
+            {
+                if( val.first == shopItem.getName() )
+                {
+                    QString out;
+                    bool hoverColor = false;
+                    if( val.second.priceType == PriceType::ESTIMATED )
+                    {
+                        out = "Ø = ";
+                        hoverColor = true;
+                    }
+
+                   out +=  QString::number(val.second.price, 'f', 2 );
+
+                   item = new QTableWidgetItem( out );
+
+                   if( hoverColor )
+                   {
+                        item->setTextColor( QColor::fromRgb(245,100,0) );
+                   }
+
+                   tableWidget->setItem( rowIndex, ++colIndex, item );
+
+                }
+            }
+        }
+
+        ++rowIndex;
+    }
+
+    // Fill Gesamtsuppe and sumAmounts
+    item = new QTableWidgetItem( "GESAMTSUMME");
+
+    font = item->font();
+    font.setPointSize( 10 );
+    font.setBold( true );
+
+    item->setFont( font );
+
+    tableWidget->setItem( rowIndex, 0, item );
+
+    colIndex = 0;
+
+
+    for( const auto &keyVal : items )
+    {
+        item = new QTableWidgetItem( QString::number(sumAmountDiscounter.at(keyVal.first), 'f', 2 ) );
+
+        font = item->font();
+        font.setPointSize( 10 );
+        font.setBold( true );
+
+        item->setFont( font );
+
+        tableWidget->setItem( rowIndex, ++colIndex, item );
+    }
+
+    //tableWidget->show();
+
+
+    DiscounterWindow *resultTable = new DiscounterWindow{ this, tableWidget };
+    resultTable->show();
+
+    /*
+    QMap<Discounter, QList<QPair<ShopItem,
     QList<DiscounterShopItem> allLowPricedDiscounters;
     QList<DiscounterShopItem> allPricedDiscounters;
     QList<ShopItem> shopItemsWithoutDiscounter;
@@ -359,4 +614,6 @@ void MainWindow::on_pushButton_generateLists_clicked()
     }
 
     this->createDiscounterWindows( mapLowPricedDiscounters, mapOtherPricedDiscounters, shopItemsWithoutDiscounter );
+*/
+
 }

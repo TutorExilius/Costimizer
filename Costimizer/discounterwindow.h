@@ -2,6 +2,7 @@
 #define DISCOUNTERWINDOW_H
 
 #include <QMainWindow>
+#include <QTableWidget>
 
 #include "discountershopitem.h"
 #include "shopitem.h"
@@ -19,12 +20,8 @@ class DiscounterWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit DiscounterWindow( QWidget *parent, DB_DataProvider *ref_dbDataProvider );
+    explicit DiscounterWindow( QWidget *parent, QTableWidget *tableWidget );
     ~DiscounterWindow();
-
-    void addDiscounterShopItemsToListWidget( const QMap<ulong,QList<DiscounterShopItem>> &lowPricedDiscounters,
-                                             const QMap<ulong,QList<DiscounterShopItem>> &otherPricedDiscounters );
-    void addShopItmesToListWidget( const QList<ShopItem> &shopItemsWithoutDiscounter );
 
 private slots:
     void on_pushButton_printToPdf_clicked();
@@ -32,15 +29,8 @@ private slots:
 private:
     QString toHtml( QListWidgetItem *item );
 
-    void insertDiscounterName( const QString &content );
-    void insertDiscounterLocation( const QString &content );
-    void insertDiscounterShopItem( const QString &content, const QColor &color = Qt::black );
-    void insertSpacer();
-    void insertEmptyLine();
-
     Ui::DiscounterWindow *ui;
     int rowCount;
-    DB_DataProvider *ref_dbDataProvider;
 };
 
 #endif // DISCOUNTERWINDOW_H

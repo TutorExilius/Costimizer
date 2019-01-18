@@ -288,3 +288,66 @@ QList<DiscounterShopItem> DB_DataProvider::getDiscounterShopItems( const uint &s
     return discounterShopItems;
 }
 
+double DB_DataProvider::getNormalPrice( const uint &shopItemID, const uint &discounterID ) const
+{
+    QSqlQuery query;
+
+    const QString sql = "SELECT NormalPrice FROM discounter_shopitem WHERE ShopItemID = "
+            + QString::number( shopItemID ) + " AND DiscounterID = "
+            + QString::number( discounterID );
+
+    if( query.exec( sql ) )
+    {
+        if( query.next() )
+        {
+            bool parseToDoubleSucceeded = false;
+            double normalPrice = query.value( "NormalPrice" ).toDouble( &parseToDoubleSucceeded );
+
+            if( parseToDoubleSucceeded )
+            {
+                return normalPrice;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+    }
+    else
+    {
+        qDebug() << "query.exec()-Error: " << this->db.lastError();
+        return 0.0;
+    }
+}
+
+double DB_DataProvider::getAverageNormalPriceOfShopItem( const uint &shopItemID ) const
+{
+    QSqlQuery query;
+
+    const QString sql = "SELECT avg(NormalPrice) FROM discounter_shopitem WHERE ShopItemID = "
+            + QString::number( shopItemID );
+
+    if( query.exec( sql ) )
+    {
+        if( query.next() )
+        {
+            bool parseToDoubleSucceeded = false;
+            double normalPrice = query.value(0).toDouble( &parseToDoubleSucceeded );
+
+            if( parseToDoubleSucceeded )
+            {
+                return normalPrice;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+    }
+    else
+    {
+        qDebug() << "query.exec()-Error: " << this->db.lastError();
+        return 0.0;
+    }
+}
+
