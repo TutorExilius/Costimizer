@@ -50,8 +50,14 @@ MainWindow::MainWindow( QWidget *parent )
                       this, &MainWindow::onAboutCostimizer,
                       Qt::UniqueConnection );
 
+    /* With Combination Mutltiple items in list  1x,..2x,..3x
     QObject::connect( this->ui->listWidget_items, &QListWidget::itemDoubleClicked,
                       this, &MainWindow::onDoubleClicked,
+                      Qt::UniqueConnection );
+    */
+
+    QObject::connect( this->ui->listWidget_items, &QListWidget::itemDoubleClicked,
+                      this, &MainWindow::onDoubleClicked_simplyfiedVersion,
                       Qt::UniqueConnection );
 
     QObject::connect( this->ui->pushButton_shiftItem, &QPushButton::clicked,
@@ -283,6 +289,12 @@ void MainWindow::onDoubleClicked( QListWidgetItem *item )
 
     this->combineEntries();
 
+    this->ui->listWidget_items->reset();
+}
+
+void MainWindow::onDoubleClicked_simplyfiedVersion( QListWidgetItem *item )
+{
+    this->addItem( this->splitString(item->text()).first, false );
     this->ui->listWidget_items->reset();
 }
 

@@ -53,6 +53,7 @@ public:
 
 public slots:
     void onDoubleClicked( QListWidgetItem *item );
+    void onDoubleClicked_simplyfiedVersion( QListWidgetItem *item );
     void onShiftClicked();
     void onShiftClicked_simplyfiedVersion();
     void onDeleteSelectionsClicked();
