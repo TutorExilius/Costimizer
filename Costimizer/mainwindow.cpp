@@ -348,7 +348,7 @@ void MainWindow::onReduceOneClicked()
 
 void MainWindow::onAboutCostimizer()
 {
-    QMessageBox::about( this, "About Costimizer", "A \"C++ Let's Try [Qt]\" - Community Project\nof Tutor Exilius (http://twitch.tv/TutorExilius)");
+    QMessageBox::about( this, "About Costimizer", "A \"C++ Let's Try [Qt]\" - Community Project\nof Tutor Exilius\nhttp://twitch.tv/TutorExilius");
 }
 
 void MainWindow::onAboutQt()
