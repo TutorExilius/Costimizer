@@ -11,6 +11,7 @@
 #include <QPair>
 #include <QTableWidget>
 #include <QFontDatabase>
+#include <QVector>
 
 #include <map>
 #include <string>
@@ -19,6 +20,7 @@
 #include <QItemSelectionModel>
 #include <QMessageBox>
 
+#include "customaboutdialog.h"
 #include "db_dataprovider.h"
 #include "shopitem.h"
 #include "discountershopitem.h"
@@ -348,7 +350,25 @@ void MainWindow::onReduceOneClicked()
 
 void MainWindow::onAboutCostimizer()
 {
-    QMessageBox::about( this, "About Costimizer", "A \"C++ Let's Try [Qt]\" - Community Project\nof Tutor Exilius\nhttp://twitch.tv/TutorExilius");
+    QVector<QPair<DialogSection, QString>> dialogSections{
+        { DialogSection::ICON, ":/tutor_exilius_logo.png" },
+        { DialogSection::TITLE, "About Costimizer" },
+        { DialogSection::VERSION, "v1.0" },
+        { DialogSection::RELEASE_DATE, "2019-01-25" },
+        { DialogSection::ICON, ":/tutor_exilius_logo.png" },
+        { DialogSection::SHORT_INFO, "That's a Tutor Exilius Qt project started 2018-09-09 on "
+                                     "<a href=\"https://twitch.tv/tutorexilius\">https://twitch.tv/tutorexilius</a>" },
+        { DialogSection::DESCRIPTION, "Optimize your shopping by comparing your shopping prices of each item "
+                    "from different discounters and generate your next shopping list on the basis of your acknowledgment." },
+        { DialogSection::AUTHOR, "Tutor Exilius" },
+        { DialogSection::CREDITS, "Special thanks to my twitch community which supported in my live stream chat!" },
+        { DialogSection::LICENCE, "GPLv3. See Licence.txt" },
+        { DialogSection::RESOURCES, "You can download the source code on github: "
+                    "<a href=\"https://github.com/tutorexilius/Costimizer\">https://github.com/tutorexilius/Costimizer</a>." }
+    };
+
+    CustomAboutDialog *about = new CustomAboutDialog{ this, dialogSections };
+    about->exec();
 }
 
 void MainWindow::onAboutQt()

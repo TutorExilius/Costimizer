@@ -32,7 +32,8 @@ SOURCES += \
     config.cpp \
     configdialog.cpp \
     db_dataprovider.cpp \
-    discounterwindow.cpp
+    discounterwindow.cpp \
+    customaboutdialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -43,14 +44,19 @@ HEADERS += \
     config.h \
     configdialog.h \
     db_dataprovider.h \
-    discounterwindow.h
+    discounterwindow.h \
+    customaboutdialog.h
 
 FORMS += \
         mainwindow.ui \
     configdialog.ui \
-    discounterwindow.ui
+    discounterwindow.ui \
+    customaboutdialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    icon.qrc
